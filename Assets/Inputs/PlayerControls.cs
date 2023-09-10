@@ -53,6 +53,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Serve"",
+                    ""type"": ""Button"",
+                    ""id"": ""7be3cdd8-e67c-45c4-a670-d1f3b8ec97c5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -132,6 +141,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""383d7310-d369-4874-8d12-8cec92c161d1"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Serve"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -162,6 +182,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""type"": ""Value"",
                     ""id"": ""5630acda-ef5e-4d06-a317-ba697a3a8cac"",
                     ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Serve"",
+                    ""type"": ""Button"",
+                    ""id"": ""94dc7924-ab07-495c-9357-02b106602d62"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -244,6 +273,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1a16c25f-efb0-4682-bd03-9b2b5cf5a528"",
+                    ""path"": ""<Keyboard>/numpad1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Serve"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -255,11 +295,13 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_MovementA_Pick = m_MovementA.FindAction("Pick", throwIfNotFound: true);
         m_MovementA_Drop = m_MovementA.FindAction("Drop", throwIfNotFound: true);
         m_MovementA_Move = m_MovementA.FindAction("Move", throwIfNotFound: true);
+        m_MovementA_Serve = m_MovementA.FindAction("Serve", throwIfNotFound: true);
         // MovementB
         m_MovementB = asset.FindActionMap("MovementB", throwIfNotFound: true);
         m_MovementB_Pick = m_MovementB.FindAction("Pick", throwIfNotFound: true);
         m_MovementB_Drop = m_MovementB.FindAction("Drop", throwIfNotFound: true);
         m_MovementB_Move = m_MovementB.FindAction("Move", throwIfNotFound: true);
+        m_MovementB_Serve = m_MovementB.FindAction("Serve", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -322,6 +364,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_MovementA_Pick;
     private readonly InputAction m_MovementA_Drop;
     private readonly InputAction m_MovementA_Move;
+    private readonly InputAction m_MovementA_Serve;
     public struct MovementAActions
     {
         private @PlayerControls m_Wrapper;
@@ -329,6 +372,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Pick => m_Wrapper.m_MovementA_Pick;
         public InputAction @Drop => m_Wrapper.m_MovementA_Drop;
         public InputAction @Move => m_Wrapper.m_MovementA_Move;
+        public InputAction @Serve => m_Wrapper.m_MovementA_Serve;
         public InputActionMap Get() { return m_Wrapper.m_MovementA; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -347,6 +391,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Move.started -= m_Wrapper.m_MovementAActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_MovementAActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_MovementAActionsCallbackInterface.OnMove;
+                @Serve.started -= m_Wrapper.m_MovementAActionsCallbackInterface.OnServe;
+                @Serve.performed -= m_Wrapper.m_MovementAActionsCallbackInterface.OnServe;
+                @Serve.canceled -= m_Wrapper.m_MovementAActionsCallbackInterface.OnServe;
             }
             m_Wrapper.m_MovementAActionsCallbackInterface = instance;
             if (instance != null)
@@ -360,6 +407,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
+                @Serve.started += instance.OnServe;
+                @Serve.performed += instance.OnServe;
+                @Serve.canceled += instance.OnServe;
             }
         }
     }
@@ -371,6 +421,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_MovementB_Pick;
     private readonly InputAction m_MovementB_Drop;
     private readonly InputAction m_MovementB_Move;
+    private readonly InputAction m_MovementB_Serve;
     public struct MovementBActions
     {
         private @PlayerControls m_Wrapper;
@@ -378,6 +429,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Pick => m_Wrapper.m_MovementB_Pick;
         public InputAction @Drop => m_Wrapper.m_MovementB_Drop;
         public InputAction @Move => m_Wrapper.m_MovementB_Move;
+        public InputAction @Serve => m_Wrapper.m_MovementB_Serve;
         public InputActionMap Get() { return m_Wrapper.m_MovementB; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -396,6 +448,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Move.started -= m_Wrapper.m_MovementBActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_MovementBActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_MovementBActionsCallbackInterface.OnMove;
+                @Serve.started -= m_Wrapper.m_MovementBActionsCallbackInterface.OnServe;
+                @Serve.performed -= m_Wrapper.m_MovementBActionsCallbackInterface.OnServe;
+                @Serve.canceled -= m_Wrapper.m_MovementBActionsCallbackInterface.OnServe;
             }
             m_Wrapper.m_MovementBActionsCallbackInterface = instance;
             if (instance != null)
@@ -409,6 +464,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
+                @Serve.started += instance.OnServe;
+                @Serve.performed += instance.OnServe;
+                @Serve.canceled += instance.OnServe;
             }
         }
     }
@@ -418,11 +476,13 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnPick(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
+        void OnServe(InputAction.CallbackContext context);
     }
     public interface IMovementBActions
     {
         void OnPick(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
+        void OnServe(InputAction.CallbackContext context);
     }
 }

@@ -10,8 +10,6 @@ using UnityEngine.UI;
 
 public class PickupItemView : MonoBehaviour
 {
-    private const int PLAYER_LAYER = 6;
-
     [SerializeField]
     private PickupsEnum _pickupType = PickupsEnum.NONE;
     public PickupsEnum PickupType
@@ -56,7 +54,7 @@ public class PickupItemView : MonoBehaviour
 
     public void OnTriggerEnter2D( Collider2D col)
     {
-        if (col.gameObject.layer.Equals ( PLAYER_LAYER ))
+        if (col.gameObject.layer.Equals ( LayerConstants.PLAYER_LAYER ))
         {
             int playerId = col.gameObject.GetComponent<PlayerController>().PlayerId;
             if ( checkId == playerId )

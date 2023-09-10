@@ -28,31 +28,39 @@ namespace Scripts.Core
         [SerializeField]
         private VegetableItemView vegetableItemPrefab = null;
 
+        [SerializeField]
+        private List<VegetablesChopController> choppingBoardList = null;
+
         private List<VegetableItemView> vegetableItemsList = null;
 
         private List<string> actionMapsList = null;
 
         public void Start ()
         {
+            setupPlayers();
+            setupStage();
+        }
+
+        private void setupPlayers()
+        {
             if (inputAsset != null)
             {
                 actionMapsList = new List<string>();
-                for (int i = 0 ; i < inputAsset.actionMaps.Count ; i++)
+                for (int i = 0; i < inputAsset.actionMaps.Count; i++)
                 {
-                    actionMapsList.Add (inputAsset.actionMaps [i].name);
+                    actionMapsList.Add(inputAsset.actionMaps[i].name);
                 }
             }
 
             if (playersList != null && actionMapsList != null)
             {
-                for (int i = 0 ; i < playersList.Count ; i++)
+                for (int i = 0; i < playersList.Count; i++)
                 {
-                    playersList [i].SetupPlayer ( actionMapsList [0], levelConfigData.levelData.VegetablesCarryCapacity );
-                    actionMapsList.RemoveAt (0);
+                    int playerId = getPlayerId ();
+                    playersList[i].SetupPlayer(actionMapsList[0], levelConfigData.levelData.VegetablesCarryCapacity, playerId);
+                    actionMapsList.RemoveAt(0);
                 }
             }
-
-            setupStage ();
         }
 
         private void setupStage ()
@@ -76,7 +84,35 @@ namespace Scripts.Core
                     vegInstance.Initialize (levelConfigData.levelData.VegetableList [i]);
                     vegetableItemsList.Add (vegInstance);
                 }
+
+                if (choppingBoardList != null)
+                {
+                    for (int i = 0 ; i < choppingBoardList.Count ; i++)
+                    {
+                        choppingBoardList [i].Initialize (levelConfigData.levelData.WaitingTimePerVegetable,
+                                                playersList [i].PlayerId);
+                    }
+                }
             }
+        }
+
+        private int getPlayerId ()
+        {
+            int id = 0;
+
+            if ( playersList != null )
+            {
+                id = Random.Range (1, 1000);
+
+                PlayerController temp = playersList.Find (x => x.PlayerId == id);
+
+                if(temp != null)
+                {
+                    id = getPlayerId ();
+                }
+            }
+
+            return id;
         }
     }
 }

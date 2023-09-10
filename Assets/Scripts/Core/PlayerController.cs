@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Scripts.Enums;
 using Scripts.Views;
 using TMPro;
 using Unity.VisualScripting;
@@ -10,8 +11,6 @@ namespace Scripts.Core
 {
     public class PlayerController : MonoBehaviour
     {
-        private const int VEGETABLE_LAYER = 7;
-
         [SerializeField]
         private float speed = 100.0f;
 
@@ -26,6 +25,11 @@ namespace Scripts.Core
 
         [SerializeField]
         private TextMeshProUGUI carryVegText = null;
+
+        [SerializeField]
+        private SaladItemView saladItem = null;
+
+        private SaladVO saladOrder = null;
 
         private VegetableItemView lastDroppedVeg = null;
         public VegetableItemView LastDroppedVeg
@@ -65,6 +69,10 @@ namespace Scripts.Core
 
         private Queue<VegetableItemView> vegQueue = null;
 
+        private VegetablesChopController vegetablesChopStation = null;
+
+        private bool canSubmitOrder = true;
+
         public void Awake ()
         {
             playerControls = new PlayerControls();
@@ -73,18 +81,31 @@ namespace Scripts.Core
 
         public void Update ()
         {
-            if ( movementInput != Vector2.zero )
+            if ( vegetablesChopStation == null
+                || (vegetablesChopStation != null && !vegetablesChopStation.IsChopping) )
             {
-                movePlayer ();
+                if ( movementInput != Vector2.zero )
+                {
+                    movePlayer ();
+                }
+            }
+            else
+            {
+                movementInput = Vector2.zero;
             }
         }
 
-        public void SetupPlayer ( string inputActionMap, int maxCarryCapacity )
+        public void SetupPlayer ( string inputActionMap, int maxCarryCapacity, int id )
         {
+            PlayerId = id;
             carryCapacity = maxCarryCapacity;
             playerInputs.SwitchCurrentActionMap ( inputActionMap );
+
+            // using ActionMap MovementA as reference for Action names
+            // as the names are similar in both the ActionMaps
             playerInputs.actions[playerControls.MovementA.Pick.name].performed += pickInput;
             playerInputs.actions[playerControls.MovementA.Drop.name].performed += dropInput;
+            playerInputs.actions[playerControls.MovementA.Serve.name].performed += orderInput;
             playerInputs.actions[playerControls.MovementA.Move.name].performed += moveInput;
             playerInputs.actions[playerControls.MovementA.Move.name].canceled += moveInput;
 
@@ -96,7 +117,11 @@ namespace Scripts.Core
 
         private void moveInput (InputAction.CallbackContext val)
         {
-            movementInput = val.ReadValue<Vector2>();
+            if ( vegetablesChopStation == null
+                || (vegetablesChopStation != null && !vegetablesChopStation.IsChopping) )
+            {
+                movementInput = val.ReadValue<Vector2>();
+            }
         }
     
         private void movePlayer ()
@@ -109,12 +134,20 @@ namespace Scripts.Core
 
         private void pickInput (InputAction.CallbackContext val)
         {
-            pickVegetable ();
+            if ( vegetablesChopStation == null
+                || (vegetablesChopStation != null && !vegetablesChopStation.IsChopping) )
+            {
+                pickVegetable ();
+            }
         }
 
         private void dropInput (InputAction.CallbackContext val)
         {
-            dropVegetable ();
+            if ( vegetablesChopStation == null
+                || (vegetablesChopStation != null && !vegetablesChopStation.IsChopping) )
+            {
+                dropVegetable ();
+            }
         }
 
         private void pickVegetable ()
@@ -132,32 +165,63 @@ namespace Scripts.Core
 
         private void dropVegetable ()
         {
-            if ( vegQueue != null && vegQueue.Count > 0 )
+            if (canDrop)
             {
-                LastDroppedVeg = vegQueue.Dequeue ();
-                removeFromCarryData ();
-            }
-            else
-            {
-                Debug.Log ("Nothing to Drop");
+                if ( vegQueue != null && vegQueue.Count > 0 )
+                {
+                    LastDroppedVeg = vegQueue.Dequeue ();
+                    removeFromCarryData ();
+    
+                    if (vegetablesChopStation != null)
+                    {
+                        vegetablesChopStation.ChopVegetable (LastDroppedVeg);
+                    }
+                    else
+                    {
+                        // deduct points
+                    }
+                }
+                else
+                {
+                    Debug.Log ("Nothing to Drop");
+                }
             }
         }
 
         public void OnTriggerEnter2D(Collider2D col)
         {
-            if ( col.gameObject.layer.Equals ( VEGETABLE_LAYER ) )
+            if ( col.gameObject.layer.Equals ( LayerConstants.VEGETABLE_LAYER ) )
             {
                 onVegetable = col.gameObject.GetComponent<VegetableItemView>();
+            }
+
+            if ( col.gameObject.layer.Equals ( LayerConstants.DROP_VEG_LAYER ) )
+            {
+                canDrop = true;
+                col.gameObject.TryGetComponent<VegetablesChopController>(out vegetablesChopStation);
+
+                if (vegetablesChopStation != null
+                    && vegetablesChopStation.ChopsForPlayerId != PlayerId)
+                {
+                    canDrop = false;
+                    vegetablesChopStation = null;
+                }
             }
         }
 
         public void OnTriggerExit2D(Collider2D col)
         {
-            if ( col.gameObject.layer.Equals ( VEGETABLE_LAYER )
+            if ( col.gameObject.layer.Equals ( LayerConstants.VEGETABLE_LAYER )
                 && (onVegetable != null
                 && col.gameObject == onVegetable.gameObject) )
             {
                 onVegetable = null;
+            }
+
+            if ( col.gameObject.layer.Equals ( LayerConstants.DROP_VEG_LAYER ) )
+            {
+                canDrop = false;
+                vegetablesChopStation = null;
             }
         }
 
@@ -195,6 +259,35 @@ namespace Scripts.Core
                     carryVegText.text = currCarry;
                 }
             }
+        }
+
+        private void orderInput (InputAction.CallbackContext val)
+        {
+            if (saladOrder != null)
+            {
+                if ( canSubmitOrder )
+                {
+                    serveOrder ();
+                }
+            }
+            else
+            {
+                pickupOrder ();
+            }
+        }
+
+        private void pickupOrder ()
+        {
+            if (saladItem != null)
+            {
+                saladOrder = saladItem.PickSaladPlate ();
+            }
+        }
+
+        private void serveOrder ()
+        {
+            // sends the order to the next customer with same salad combo
+            // if no customer
         }
     }
 }

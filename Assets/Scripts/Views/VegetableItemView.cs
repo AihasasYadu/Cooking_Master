@@ -9,8 +9,6 @@ namespace Scripts.Views
 {
     public class VegetableItemView : MonoBehaviour
     {
-        private const int PLAYER_LAYER = 6;
-
         [SerializeField]
         private VegetablesEnum vegetableType = VegetablesEnum.NONE;
         public VegetablesEnum VegetableType
