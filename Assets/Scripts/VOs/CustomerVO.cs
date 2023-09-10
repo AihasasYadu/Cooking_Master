@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Scripts.Enum;
+using Scripts.Enums;
 using UnityEngine;
 
 namespace Scripts.VO
