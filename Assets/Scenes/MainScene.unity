@@ -3558,9 +3558,7 @@ MonoBehaviour:
   playersList:
   - {fileID: 912018474}
   - {fileID: 483612583}
-  actionMapsList:
-  - MovementA
-  - MovementB
+  inputAsset: {fileID: -944628639613478452, guid: 8a8eef4303189784da553e92e6f71add, type: 3}
 --- !u!4 &1590524076
 Transform:
   m_ObjectHideFlags: 0
