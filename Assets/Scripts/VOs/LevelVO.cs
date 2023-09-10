@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Scripts.VO
 {
+    [System.Serializable]
     public class LevelVO
     {
         [SerializeField]
@@ -123,6 +124,21 @@ namespace Scripts.VO
             set
             {
                 _choppingTime = value;
+            }
+        }
+
+        [SerializeField]
+        private int _vegetablesCarryCapacity = 0;
+        public int VegetablesCarryCapacity
+        {
+            get
+            {
+                return _vegetablesCarryCapacity;
+            }
+
+            set
+            {
+                _vegetablesCarryCapacity = value;
             }
         }
     }
