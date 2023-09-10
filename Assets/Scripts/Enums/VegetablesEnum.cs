@@ -1,4 +1,4 @@
-namespace Scripts.Enum
+namespace Scripts.Enums
 {
     public enum VegetablesEnum
     {
