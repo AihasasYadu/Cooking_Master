@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Scripts.Views;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,6 +24,23 @@ namespace Scripts.Core
         [SerializeField]
         private RectTransform rectTransform = null;
 
+        [SerializeField]
+        private TextMeshProUGUI carryVegText = null;
+
+        private VegetableItemView lastDroppedVeg = null;
+        public VegetableItemView LastDroppedVeg
+        {
+            get
+            {
+                return lastDroppedVeg;
+            }
+
+            private set
+            {
+                lastDroppedVeg = value;
+            }
+        }
+
         private int playerId = 0;
         public int PlayerId
         {
@@ -37,18 +55,20 @@ namespace Scripts.Core
             }
         }
 
+        private int carryCapacity = 0;
+
         private VegetableItemView onVegetable = null;
 
         private Vector2 movementInput = Vector2.zero;
 
         private bool canDrop = false;
 
-        private List<VegetableItemView> vegList = null;
+        private Queue<VegetableItemView> vegQueue = null;
 
         public void Awake ()
         {
             playerControls = new PlayerControls();
-            vegList = new List<VegetableItemView>();
+            vegQueue = new Queue<VegetableItemView>();
         }
 
         public void Update ()
@@ -59,13 +79,19 @@ namespace Scripts.Core
             }
         }
 
-        public void SetupPlayer ( string inputActionMap )
+        public void SetupPlayer ( string inputActionMap, int maxCarryCapacity )
         {
+            carryCapacity = maxCarryCapacity;
             playerInputs.SwitchCurrentActionMap ( inputActionMap );
             playerInputs.actions[playerControls.MovementA.Pick.name].performed += pickInput;
             playerInputs.actions[playerControls.MovementA.Drop.name].performed += dropInput;
             playerInputs.actions[playerControls.MovementA.Move.name].performed += moveInput;
             playerInputs.actions[playerControls.MovementA.Move.name].canceled += moveInput;
+
+            if (carryVegText != null)
+            {
+                carryVegText.text = string.Empty;
+            }
         }
 
         private void moveInput (InputAction.CallbackContext val)
@@ -83,37 +109,37 @@ namespace Scripts.Core
 
         private void pickInput (InputAction.CallbackContext val)
         {
-            bool pick = val.ReadValue<bool>();
-
-            if ( pick )
-            {
-                pickVegetable ();
-            }
+            pickVegetable ();
         }
 
         private void dropInput (InputAction.CallbackContext val)
         {
-            bool drop = val.ReadValue<bool>();
-
-            if ( drop )
-            {
-                dropVegetable ();
-            }
+            dropVegetable ();
         }
 
         private void pickVegetable ()
         {
-            if ( onVegetable != null )
+            if ( onVegetable != null && vegQueue.Count < carryCapacity )
             {
-                vegList.Add ( onVegetable );
+                vegQueue.Enqueue ( onVegetable );
+                addVegToCarryData (onVegetable.VegetableType.ToString ());
+            }
+            else
+            {
+                Debug.Log ("Nothing Around to Pick");
             }
         }
 
         private void dropVegetable ()
         {
-            if ( vegList != null && vegList.Count > 0 )
+            if ( vegQueue != null && vegQueue.Count > 0 )
             {
-                vegList.RemoveAt ( vegList.Count - 1 );
+                LastDroppedVeg = vegQueue.Dequeue ();
+                removeFromCarryData ();
+            }
+            else
+            {
+                Debug.Log ("Nothing to Drop");
             }
         }
 
@@ -127,9 +153,47 @@ namespace Scripts.Core
 
         public void OnTriggerExit2D(Collider2D col)
         {
-            if ( col.gameObject.layer.Equals ( VEGETABLE_LAYER ) )
+            if ( col.gameObject.layer.Equals ( VEGETABLE_LAYER )
+                && (onVegetable != null
+                && col.gameObject == onVegetable.gameObject) )
             {
                 onVegetable = null;
+            }
+        }
+
+        private void addVegToCarryData (string veg)
+        {
+            if (carryVegText != null)
+            {
+                if ( string.IsNullOrEmpty (carryVegText.text) )
+                {
+                    carryVegText.text = veg;
+                }
+                else
+                {
+                    carryVegText.text += ", " + veg;
+                }
+            }
+        }
+
+        private void removeFromCarryData ()
+        {
+            if (carryVegText != null)
+            {
+                if ( !string.IsNullOrEmpty (carryVegText.text) )
+                {
+                    string currCarry = carryVegText.text;
+                    if ( vegQueue.Count >= 1 )
+                    {
+                        currCarry = currCarry.Substring (3);
+                    }
+                    else
+                    {
+                        currCarry = string.Empty;
+                    }
+
+                    carryVegText.text = currCarry;
+                }
             }
         }
     }
