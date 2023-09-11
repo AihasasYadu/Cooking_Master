@@ -27,7 +27,7 @@ namespace Scripts.Core
         private TextMeshProUGUI carryVegText = null;
 
         [SerializeField]
-        private SaladItemView saladItem = null;
+        private SaladController saladItem = null;
 
         private SaladVO saladOrder = null;
 

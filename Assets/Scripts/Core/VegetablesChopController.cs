@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Scripts.Core;
 using Scripts.Enums;
 using Scripts.Views;
 using TMPro;
@@ -18,7 +19,7 @@ namespace Scripts.Views
         private TextMeshProUGUI vegOnBoardText = null;
     
         [SerializeField]
-        private SaladItemView saladPlate = null;
+        private SaladController saladPlate = null;
 
         private bool isChopping = false;
         public bool IsChopping 
@@ -83,10 +84,10 @@ namespace Scripts.Views
             timer = 0;
             while (timer < chopTime)
             {
-                timer += Time.deltaTime;
-                timerImage.fillAmount = timer / chopTime;
+                timer += Time.deltaTime * chopTime;
+                timerImage.fillAmount = (timer / chopTime);
     
-                yield return null;        
+                yield return new WaitForEndOfFrame ();
             }
     
             timerImage.fillAmount = 0;

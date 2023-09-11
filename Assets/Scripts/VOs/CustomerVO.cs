@@ -38,8 +38,8 @@ namespace Scripts.VO
         }
 
         [SerializeField]
-        private string _customerOrder = string.Empty;
-        public string CustomerOrder
+        private SaladVO _customerOrder = null;
+        public SaladVO CustomerOrder
         {
             get
             {

@@ -4,9 +4,9 @@ using Scripts.Enums;
 using TMPro;
 using UnityEngine;
 
-namespace Scripts.Views
+namespace Scripts.Core
 {
-    public class SaladItemView : MonoBehaviour
+    public class SaladController : MonoBehaviour
     {
         [SerializeField]
         private TextMeshProUGUI saladText = null;
