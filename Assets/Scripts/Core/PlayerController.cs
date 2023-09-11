@@ -73,7 +73,7 @@ namespace Scripts.Core
 
         private VegetablesChopController vegetablesChopStation = null;
 
-        private bool canSubmitOrder = true;
+        private bool canSubmitOrder = false;
 
         public void Awake ()
         {
@@ -154,14 +154,17 @@ namespace Scripts.Core
 
         private void pickVegetable ()
         {
-            if ( onVegetable != null && vegQueue.Count < carryCapacity )
+            if (saladOrder == null)
             {
-                vegQueue.Enqueue ( onVegetable );
-                addVegToCarryData (onVegetable.VegetableType.ToString ());
-            }
-            else
-            {
-                Debug.Log ("Nothing Around to Pick");
+                if ( onVegetable != null && vegQueue.Count < carryCapacity )
+                {
+                    vegQueue.Enqueue ( onVegetable );
+                    addVegToCarryData (onVegetable.VegetableType.ToString ());
+                }
+                else
+                {
+                    Debug.Log ("Nothing Around to Pick");
+                }
             }
         }
 

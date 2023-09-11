@@ -92,6 +92,11 @@ namespace Scripts.Core
                         StopCoroutine (timerCoroutine);
                     }
 
+                    if (timer / orderTime > 0.7f)
+                    {
+                        // grant powerup item to the player
+                    }
+
                     customerLeaveCallback?.Invoke (this);
                 }
                 else
