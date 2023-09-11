@@ -63,6 +63,8 @@ namespace Scripts.Core
 
         private VegetableItemView onVegetable = null;
 
+        private CustomerController onCustomer = null;
+
         private Vector2 movementInput = Vector2.zero;
 
         private bool canDrop = false;
@@ -207,6 +209,12 @@ namespace Scripts.Core
                     vegetablesChopStation = null;
                 }
             }
+
+            if ( col.gameObject.layer.Equals ( LayerConstants.CUSTOMER_LAYER ) )
+            {
+                canSubmitOrder = true;
+                col.gameObject.TryGetComponent<CustomerController>(out onCustomer);
+            }
         }
 
         public void OnTriggerExit2D(Collider2D col)
@@ -222,6 +230,12 @@ namespace Scripts.Core
             {
                 canDrop = false;
                 vegetablesChopStation = null;
+            }
+
+            if ( col.gameObject.layer.Equals ( LayerConstants.CUSTOMER_LAYER ) )
+            {
+                canSubmitOrder = false;
+                onCustomer = null;
             }
         }
 
@@ -278,16 +292,28 @@ namespace Scripts.Core
 
         private void pickupOrder ()
         {
-            if (saladItem != null)
+            if (saladItem != null && vegQueue.Count == 0)
             {
                 saladOrder = saladItem.PickSaladPlate ();
+                
+                carryVegText.text = string.Empty;
+                for (int i = 0 ; i < saladOrder.VegetablesList.Count ; i++)
+                {
+                    carryVegText.text += saladOrder.VegetablesList [i].ToString ();
+                }
             }
         }
 
         private void serveOrder ()
         {
-            // sends the order to the next customer with same salad combo
-            // if no customer
+            if (saladOrder != null && onCustomer != null)
+            {
+                onCustomer.SubmitOrder (saladOrder, playerId);
+                saladOrder = null;
+                vegQueue.Clear ();
+                canSubmitOrder = false;
+                carryVegText.text = string.Empty;
+            }
         }
     }
 }

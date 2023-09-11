@@ -20,4 +20,9 @@ public class SaladVO
             vegetablesList = value;
         }
     }
+
+    public SaladVO()
+    {
+        vegetablesList = new List<VegetablesEnum>();
+    }
 }

@@ -22,3 +22,5 @@ MonoBehaviour:
     _deductPoints: 2
     _choppingTime: 2
     _vegetablesCarryCapacity: 2
+    _sizePerOrder: 3
+    _orderCounterCapacity: 4

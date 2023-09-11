@@ -1883,7 +1883,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.6
+  m_fontSize: 25.65
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3345,7 +3345,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.6
+  m_fontSize: 25.65
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3451,7 +3451,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 5
+  m_Spacing: 20
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -4855,6 +4855,8 @@ MonoBehaviour:
   rightVegCounter: {fileID: 629731783}
   levelConfigData: {fileID: 11400000, guid: 081a868250db2ab4f8db255a34930f60, type: 2}
   vegetableItemPrefab: {fileID: 8730157072884683130, guid: bbda32ce8bba3cb4388322d651d87e6a, type: 3}
+  customerPrefab: {fileID: 678753928578697091, guid: e0e9e038cc6340b419f44176ac463c40, type: 3}
+  orderCounterTransform: {fileID: 869194090}
   choppingBoardList:
   - {fileID: 37737172}
   - {fileID: 731151908}
@@ -5090,7 +5092,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1656253898}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 389e3f98813c1ad41ab7e5e96f697974, type: 3}
+  m_Script: {fileID: 11500000, guid: 104a520f790741d499ca7f9e556e23cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   saladText: {fileID: 1113391421}
@@ -5360,7 +5362,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2093108300}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 389e3f98813c1ad41ab7e5e96f697974, type: 3}
+  m_Script: {fileID: 11500000, guid: 104a520f790741d499ca7f9e556e23cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   saladText: {fileID: 874057054}

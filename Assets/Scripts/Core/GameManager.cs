@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Scripts.Enums;
 using Scripts.Views;
 using Scripts.VO;
 using UnityEngine;
@@ -29,16 +32,36 @@ namespace Scripts.Core
         private VegetableItemView vegetableItemPrefab = null;
 
         [SerializeField]
+        private CustomerController customerPrefab = null;
+
+        [SerializeField]
+        private Transform orderCounterTransform = null;
+
+        [SerializeField]
         private List<VegetablesChopController> choppingBoardList = null;
+
+        private List<CustomerController> customersOnCounterList = null;
+
+        private Queue<CustomerController> customersQueue = null;
 
         private List<VegetableItemView> vegetableItemsList = null;
 
         private List<string> actionMapsList = null;
 
+        private float timer = 0;
+
         public void Start ()
         {
             setupPlayers();
             setupStage();
+            initializeOrders ();
+            StartGame ();
+        }
+
+        public void StartGame ()
+        {
+            StartCustomerOrders ();
+            StartCoroutine (startGameTimer ());
         }
 
         private void setupPlayers()
@@ -102,7 +125,7 @@ namespace Scripts.Core
 
             if ( playersList != null )
             {
-                id = Random.Range (1, 1000);
+                id = UnityEngine.Random.Range (1, 1000);
 
                 PlayerController temp = playersList.Find (x => x.PlayerId == id);
 
@@ -113,6 +136,95 @@ namespace Scripts.Core
             }
 
             return id;
+        }
+
+        private IEnumerator startGameTimer ()
+        {
+            timer = levelConfigData.levelData.LevelTime;
+            while (timer > 0)
+            {
+                timer -= 1;
+                // update UI
+    
+                yield return new WaitForSeconds (1);
+            }
+    
+            timer = 0;
+        }
+
+        private void initializeOrders ()
+        {
+            if (customerPrefab != null)
+            {
+                customersQueue = new Queue<CustomerController>();
+                for (int i = 0 ; i < levelConfigData.levelData.MaxCustomers ; i++)
+                {
+                    CustomerController customer = Instantiate (customerPrefab);
+                    CustomerVO newCustomer = generateRandomCustomer ();
+                    newCustomer.CustomerId = i;
+                    customer.SetupOrder (newCustomer, 
+                                        levelConfigData.levelData.WaitingTimePerVegetable, 
+                                        onCustomerLeft);
+                    customersQueue.Enqueue (customer);
+                }
+            }
+        }
+
+        private CustomerVO generateRandomCustomer ()
+        {
+            CustomerVO customerData = null;
+
+            if (levelConfigData != null)
+            {
+                customerData = new CustomerVO();
+                for (int i = 0 ; i < levelConfigData.levelData.SizePerOrder ; i++)
+                {
+                    int maxEnumValue = Enum.GetValues (typeof (VegetablesEnum)).Cast<int>().Max();
+                    VegetablesEnum veg = (VegetablesEnum)UnityEngine.Random.Range (0, maxEnumValue);
+                    customerData.CustomerOrder.VegetablesList.Add (veg);
+                }
+
+                customerData.CustomerMood = CustomerMoodsEnum.HAPPY;
+            }
+
+            return customerData;
+        }
+
+        private void StartCustomerOrders ()
+        {
+            if (customersQueue != null)
+            {
+                customersOnCounterList = new List<CustomerController>();
+                for (int i = 0 ; i < levelConfigData.levelData.OrderCounterCapacity ; i++)
+                {
+                    moveCustomerToCounter ();
+                }
+            }
+        }
+
+        private void moveCustomerToCounter ()
+        {
+            if (customersQueue != null && customersOnCounterList != null)
+            {
+                CustomerController newCustomer = customersQueue.Dequeue ();
+                newCustomer.StartWaiting ();
+                newCustomer.transform.SetParent (orderCounterTransform);
+                customersOnCounterList.Add (newCustomer);
+            }
+        }
+
+        private void onCustomerLeft (CustomerController customer)
+        {
+            if (timer > 0.0f && customersOnCounterList != null)
+            {
+                customersOnCounterList.Remove (customer);
+                customer.gameObject.SetActive (false);
+
+                if ( customersQueue.Count > 0 )
+                {
+                    moveCustomerToCounter ();
+                }
+            }
         }
     }
 }

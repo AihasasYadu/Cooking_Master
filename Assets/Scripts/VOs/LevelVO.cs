@@ -141,5 +141,35 @@ namespace Scripts.VO
                 _vegetablesCarryCapacity = value;
             }
         }
+
+        [SerializeField]
+        private int _sizePerOrder = 0;
+        public int SizePerOrder
+        {
+            get
+            {
+                return _sizePerOrder;
+            }
+
+            set
+            {
+                _sizePerOrder = value;
+            }
+        }
+
+        [SerializeField]
+        private int _orderCounterCapacity = 0;
+        public int OrderCounterCapacity
+        {
+            get
+            {
+                return _orderCounterCapacity;
+            }
+
+            set
+            {
+                _orderCounterCapacity = value;
+            }
+        }
     }
 }

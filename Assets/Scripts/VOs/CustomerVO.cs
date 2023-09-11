@@ -51,5 +51,10 @@ namespace Scripts.VO
                 _customerOrder = value;
             }
         }
+
+        public CustomerVO()
+        {
+            _customerOrder = new SaladVO();
+        }
     }
 }

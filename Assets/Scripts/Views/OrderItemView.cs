@@ -32,6 +32,10 @@ namespace Scripts.Views
             {
                 angryIndicatorImage.gameObject.SetActive (true);
             }
+            else
+            {
+                angryIndicatorImage.gameObject.SetActive (false);
+            }
         }
     
         public void UpdateTimerSlider (float sliderValue)

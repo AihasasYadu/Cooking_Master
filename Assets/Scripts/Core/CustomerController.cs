@@ -26,9 +26,12 @@ namespace Scripts.Core
 
         private Coroutine timerCoroutine = null;
 
-        public void SetupOrder (CustomerVO customer, int waitTimePerVeg)
+        private Action<CustomerController> customerLeaveCallback = null;
+
+        public void SetupOrder (CustomerVO customer, float waitTimePerVeg, Action<CustomerController> callback)
         {
             customerData = customer;
+            customerLeaveCallback = callback;
 
             string order = string.Empty;
             if (customerData.CustomerOrder != null)
@@ -40,6 +43,7 @@ namespace Scripts.Core
                 }
             }
             orderView.InitializeOrder (order, customerData.CustomerMood);
+            timeMultiplier = 1;
         }
 
         public void StartWaiting ()
@@ -52,7 +56,7 @@ namespace Scripts.Core
             timer = orderTime;
             while (timer > 0)
             {
-                timer -= Time.deltaTime * orderTime * timeMultiplier;
+                timer -= Time.deltaTime * timeMultiplier;
                 orderView.UpdateTimerSlider ( timer / orderTime );
     
                 yield return new WaitForEndOfFrame ();        
@@ -72,28 +76,55 @@ namespace Scripts.Core
             {
                 // deduct double points from player matching player id
             }
+
+            customerLeaveCallback?.Invoke (this);
         }
 
         public void SubmitOrder (SaladVO salad, int playerId)
         {
             if (customerData != null && salad != null)
             {
-                if (salad.Equals (customerData.CustomerOrder))
+                if (isOrderCorrect (salad))
                 {
                     // reward the player with matching player id
-
                     if (timerCoroutine != null)
                     {
                         StopCoroutine (timerCoroutine);
                     }
+
+                    customerLeaveCallback?.Invoke (this);
                 }
                 else
                 {
                     customerData.CustomerMood = CustomerMoodsEnum.ANGRY;
-                    timeMultiplier = 1.5f;
+                    orderView.UpdateMood (customerData.CustomerMood);
+                    timeMultiplier += 0.5f;
                     moodSwitchedByPlayer = playerId;
                 }
             }
+        }
+
+        private bool isOrderCorrect (SaladVO salad)
+        {
+            bool orderCorrect = false;
+
+            if (salad != null && customerData != null)
+            {
+                if (salad.VegetablesList.Count == customerData.CustomerOrder.VegetablesList.Count)
+                {
+                    orderCorrect = true;
+                    for (int i = 0 ; i < salad.VegetablesList.Count ; i++)
+                    {
+                        if ( salad.VegetablesList [i] != customerData.CustomerOrder.VegetablesList [i] )
+                        {
+                            orderCorrect = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return orderCorrect;
         }
     }
 }

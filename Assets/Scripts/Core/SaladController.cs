@@ -45,7 +45,11 @@ namespace Scripts.Core
             if (saladCombinationList != null)
             {
                 salad = new SaladVO();
-                salad.VegetablesList = saladCombinationList;
+                while (saladCombinationList.Count > 0)
+                {
+                    salad.VegetablesList.Add (saladCombinationList[0]);
+                    saladCombinationList.RemoveAt (0);
+                }
                 saladCombinationList.Clear ();
                 saladText.text = string.Empty;
             }
